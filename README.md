@@ -2,12 +2,45 @@
 
 ### Задание 1
 - Запустите два simple python сервера на своей виртуальной машине на разных портах
-- Установите и настройте HAProxy, воспользуйтесь материалами к лекции по [ссылке](2/)
+- Установите и настройте HAProxy, воспользуйтесь материалами к лекции по [ссылке](https://github.com/netology-code/sflt-homeworks/tree/main/2)
 - Настройте балансировку Round-robin на 4 уровне.
 - На проверку направьте конфигурационный файл haproxy, скриншоты, где видно перенаправление запросов на разные серверы при обращении к HAProxy.
 
 ---
+```bash
+cd src/http1
+python3 -m http.server 8888
+cd src/http2
+python3 -m http.server 9999
+sudo apt update
+sudo apt install haproxy 
+sudo nano /etc/haproxy/haproxy.cfg
+sudo systemctl reload haproxy.service 
+curl http://localhost:8080
+```
 
+Добавить в /etc/haproxy/haproxy.cfg
+```
+listen stats  # веб-страница со статистикой
+        bind                    :888
+        mode                    http
+        stats                   enable
+        stats uri               /stats
+        stats refresh           5s
+        stats realm             Haproxy\ Statistics
+
+listen web_tcp
+	mode tcp
+	bind :8080
+	balance roundrobin
+	server s1 127.0.0.1:8888 check inter 3s
+	server s2 127.0.0.1:9999 check inter 3s
+```
+
+Результат
+
+![Консоль](img/task1_1.png)
+![Статистика](img/task1_2.png)
 ---
 
 ### Задание 2
@@ -18,6 +51,35 @@
 
 ---
 
+Конфиг `/etc/haproxy/haproxy.cfg` должен содержать
+``` 
+listen stats  # веб-страница со статистикой
+        bind                    :888
+        mode                    http
+        stats                   enable
+        stats uri               /stats
+        stats refresh           5s
+        stats realm             Haproxy\ Statistics
+
+frontend example  # секция фронтенд
+        mode http
+        bind :8088
+        acl ACL_example.local hdr(host) -i example.local
+        use_backend web_servers if ACL_example.local
+
+backend web_servers    # секция бэкенд
+        mode http
+        balance roundrobin
+        option httpchk
+        http-check send meth HEAD uri /index.html
+        server s1 127.0.0.1:8888 check weight 2
+        server s2 127.0.0.1:9999 check weight 3
+        server s3 127.0.0.1:7777 check weight 4
+```
+Резутьтат
+
+![Консоль](img/task2_1.png)
+![Статистика](img/task2_2.png)
 ---
 
 ## Задания со звёздочкой*
