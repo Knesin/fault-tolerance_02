@@ -94,6 +94,33 @@ backend web_servers    # секция бэкенд
 
 ---
 
+Изменения внесены в `/etc/haproxy/haproxy.cfg` и в `/etc/nginx/conf.d/example-http.conf`
+
+```conf
+server {
+   listen	80;
+
+   server_name	example-http.com;
+
+   access_log	/var/log/nginx/example-http.com-acess.log;
+   error_log	/var/log/nginx/example-http.com-error.log;
+
+   location ~* \.(jpg|jpeg|png|gif)$ {
+		root /var/www/;
+   }
+
+   location / {
+		proxy_pass	http://localhost:1325;
+   }
+
+}
+```
+
+
+Резутьтат
+
+![Консоль](img/task3_1.png)
+![Статистика](img/task3_2.png)
 ---
 
 ### Задание 4*
@@ -142,7 +169,7 @@ backend web_servers2    # секция бэкенд
 
 Резутьтат
 
-![Консоль](img/task3_1.png)
-![Статистика](img/task3_2.png)
+![Консоль](img/task4_1.png)
+![Статистика](img/task4_2.png)
 
 ---
