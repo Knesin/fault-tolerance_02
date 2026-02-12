@@ -105,5 +105,44 @@ backend web_servers    # секция бэкенд
 - На проверку направьте конфигурационный файл HAProxy, скриншоты, демонстрирующие запросы к разным фронтендам и ответам от разных бэкендов.
 
 ---
+Конфиг `/etc/haproxy/haproxy.cfg` должен содержать
+```
+listen stats  # веб-страница со статистикой
+        bind                    :888
+        mode                    http
+        stats                   enable
+        stats uri               /stats
+        stats refresh           5s
+        stats realm             Haproxy\ Statistics
+
+frontend example  # секция фронтенд
+        mode http
+        bind :8088
+        acl ACL_example1.local hdr(host) -i example1.local
+        acl ACL_example2.local hdr(host) -i example2.local
+        use_backend web_servers1 if ACL_example1.local
+        use_backend web_servers2 if ACL_example2.local
+
+backend web_servers1    # секция бэкенд
+        mode http
+        balance roundrobin
+        option httpchk
+        http-check send meth HEAD uri /index.html
+        server s1 127.0.0.1:8888 check inter 8s
+        server s2 127.0.0.1:9999 check inter 8s
+
+backend web_servers2    # секция бэкенд
+        mode http
+        balance roundrobin
+        option httpchk
+        http-check send meth HEAD uri /index.html
+        server s3 127.0.0.1:7777 check inter 8s
+        server s4 127.0.0.1:6666 check inter 8s
+```
+
+Резутьтат
+
+![Консоль](img/task3_1.png)
+![Статистика](img/task3_2.png)
 
 ---
