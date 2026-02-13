@@ -19,23 +19,7 @@ sudo systemctl reload haproxy.service
 curl http://localhost:8080
 ```
 
-Добавить в /etc/haproxy/haproxy.cfg
-```
-listen stats  # веб-страница со статистикой
-        bind                    :888
-        mode                    http
-        stats                   enable
-        stats uri               /stats
-        stats refresh           5s
-        stats realm             Haproxy\ Statistics
-
-listen web_tcp
-	mode tcp
-	bind :8080
-	balance roundrobin
-	server s1 127.0.0.1:8888 check inter 3s
-	server s2 127.0.0.1:9999 check inter 3s
-```
+[haproxy.cfg](configs/task1/haproxy.cfg) переместить в `/etc/haproxy/haproxy.cfg`
 
 Результат
 
@@ -51,31 +35,8 @@ listen web_tcp
 
 ---
 
-Конфиг `/etc/haproxy/haproxy.cfg` должен содержать
-``` 
-listen stats  # веб-страница со статистикой
-        bind                    :888
-        mode                    http
-        stats                   enable
-        stats uri               /stats
-        stats refresh           5s
-        stats realm             Haproxy\ Statistics
+[haproxy.cfg](configs/task2/haproxy.cfg) переместить в `/etc/haproxy/haproxy.cfg`
 
-frontend example  # секция фронтенд
-        mode http
-        bind :8088
-        acl ACL_example.local hdr(host) -i example.local
-        use_backend web_servers if ACL_example.local
-
-backend web_servers    # секция бэкенд
-        mode http
-        balance roundrobin
-        option httpchk
-        http-check send meth HEAD uri /index.html
-        server s1 127.0.0.1:8888 check weight 2
-        server s2 127.0.0.1:9999 check weight 3
-        server s3 127.0.0.1:7777 check weight 4
-```
 Резутьтат
 
 ![Консоль](img/task2_1.png)
@@ -94,28 +55,9 @@ backend web_servers    # секция бэкенд
 
 ---
 
-Изменения внесены в `/etc/haproxy/haproxy.cfg` и в `/etc/nginx/conf.d/example-http.conf`
+[haproxy.cfg](configs/task3/haproxy.cfg) переместить в `/etc/haproxy/haproxy.cfg`
 
-```conf
-server {
-   listen	80;
-
-   server_name	example-http.com;
-
-   access_log	/var/log/nginx/example-http.com-acess.log;
-   error_log	/var/log/nginx/example-http.com-error.log;
-
-   location ~* \.(jpg|jpeg|png|gif)$ {
-		root /var/www/;
-   }
-
-   location / {
-		proxy_pass	http://localhost:1325;
-   }
-
-}
-```
-
+[example-http.conf](configs/task3/nginx/example-http.conf) переместить в `/etc/nginx/conf.d/example-http.conf`
 
 Резутьтат
 
@@ -132,40 +74,8 @@ server {
 - На проверку направьте конфигурационный файл HAProxy, скриншоты, демонстрирующие запросы к разным фронтендам и ответам от разных бэкендов.
 
 ---
-Конфиг `/etc/haproxy/haproxy.cfg` должен содержать
-```
-listen stats  # веб-страница со статистикой
-        bind                    :888
-        mode                    http
-        stats                   enable
-        stats uri               /stats
-        stats refresh           5s
-        stats realm             Haproxy\ Statistics
 
-frontend example  # секция фронтенд
-        mode http
-        bind :8088
-        acl ACL_example1.local hdr(host) -i example1.local
-        acl ACL_example2.local hdr(host) -i example2.local
-        use_backend web_servers1 if ACL_example1.local
-        use_backend web_servers2 if ACL_example2.local
-
-backend web_servers1    # секция бэкенд
-        mode http
-        balance roundrobin
-        option httpchk
-        http-check send meth HEAD uri /index.html
-        server s1 127.0.0.1:8888 check inter 8s
-        server s2 127.0.0.1:9999 check inter 8s
-
-backend web_servers2    # секция бэкенд
-        mode http
-        balance roundrobin
-        option httpchk
-        http-check send meth HEAD uri /index.html
-        server s3 127.0.0.1:7777 check inter 8s
-        server s4 127.0.0.1:6666 check inter 8s
-```
+[haproxy.cfg](configs/task4/haproxy.cfg) переместить в `/etc/haproxy/haproxy.cfg`
 
 Резутьтат
 
